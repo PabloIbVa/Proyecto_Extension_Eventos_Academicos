@@ -1,0 +1,16 @@
+{
+  "name": "extension-eventos-academicos",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Extensión de Chrome (Manifest V3) para análisis y creación automática de eventos académicos en Google Calendar.",
+  "scripts": {
+    "build": "node esbuild.config.js && node scripts/copy-static.js",
+    "watch": "node esbuild.config.js --watch && node scripts/copy-static.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.270",
+    "esbuild": "^0.23.0",
+    "typescript": "^5.5.4"
+  }
+}
