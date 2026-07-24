@@ -1,4 +1,4 @@
-# Extensión de Eventos Académicos (esqueleto Manifest V3)
+# Extensión de Eventos Académicos
 
 Esqueleto inicial de la extensión de Chrome. Aún no tiene la lógica de
 análisis ni la integración con el BFF/AI Service — solo el andamiaje base
