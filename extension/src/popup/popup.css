@@ -35,3 +35,21 @@ button {
 button:hover {
   background: #1558b0;
 }
+
+.hidden {
+  display: none;
+}
+
+#logout-btn {
+  background: #f1f3f4;
+  color: #1a1a1a;
+  margin-top: 6px;
+}
+
+#logout-btn:hover {
+  background: #e2e4e6;
+}
+
+#analyze-btn {
+  margin-top: 6px;
+}
