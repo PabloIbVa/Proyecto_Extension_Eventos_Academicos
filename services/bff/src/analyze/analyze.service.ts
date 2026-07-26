@@ -12,6 +12,8 @@ export interface AnalysisResult {
   title: string;
   startDateTime: string | null;
   endDateTime: string | null;
+  location: string | null;
+  description: string | null;
   confidence: number;
 }
 

@@ -17,4 +17,9 @@ export class CreateEventDto {
   @IsOptional()
   @MaxLength(2000)
   description?: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(300)
+  location?: string;
 }

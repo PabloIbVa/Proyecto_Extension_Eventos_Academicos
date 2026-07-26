@@ -44,6 +44,7 @@ export class EventsService {
         requestBody: {
           summary: dto.title,
           description: dto.description,
+          location: dto.location,
           start: { dateTime: start.toISOString() },
           end: { dateTime: end.toISOString() },
         },

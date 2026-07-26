@@ -86,6 +86,13 @@ uvicorn app.main:app --reload --port 8000
 
 Documentación interactiva autogenerada (Swagger UI): `http://localhost:8000/docs`
 
+### Si te da error 404 "model no longer available"
+
+Google retira y reemplaza nombres de modelo de Gemini con bastante
+frecuencia. Si `GEMINI_MODEL` deja de funcionar, revisa el listado
+vigente en https://ai.google.dev/gemini-api/docs/models, actualiza el
+valor en tu `.env`, y reinicia el servicio.
+
 ## Endpoints
 
 - `GET /health` — verifica que el servicio esté vivo.

@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     ai_provider: Literal["gemini", "openrouter"] = "gemini"
 
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.5-flash-lite"
+    gemini_model: str = "gemini-3.1-flash-lite"
 
     openrouter_api_key: str = ""
     # Verifica modelos gratuitos vigentes en https://openrouter.ai/models?max_price=0

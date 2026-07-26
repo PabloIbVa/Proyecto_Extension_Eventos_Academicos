@@ -19,6 +19,8 @@ adicional, con esta forma exacta:
   "title": string,              // título breve y claro del evento
   "start_date_time": string|null,  // fecha/hora en formato ISO 8601, o null si no se encuentra
   "end_date_time": string|null,    // opcional, ISO 8601, o null
+  "location": string|null,         // aula, edificio, plataforma (ej. "Zoom", "Aula 204"), o null si no se menciona
+  "description": string|null,      // detalles relevantes del evento (instrucciones, tema, requisitos), o null
   "confidence": number           // 0.0 a 1.0, qué tan seguro estás de la extracción
 }
 
@@ -64,5 +66,7 @@ class AnalyzerService:
             title=parsed.get("title", "Evento sin título"),
             startDateTime=parsed.get("start_date_time"),
             endDateTime=parsed.get("end_date_time"),
+            location=parsed.get("location"),
+            description=parsed.get("description"),
             confidence=float(parsed.get("confidence", 0.0)),
         )

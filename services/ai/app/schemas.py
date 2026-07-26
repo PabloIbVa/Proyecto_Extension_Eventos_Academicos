@@ -10,6 +10,8 @@ class AnalysisResult(BaseModel):
     title: str
     start_date_time: str | None = Field(default=None, alias="startDateTime")
     end_date_time: str | None = Field(default=None, alias="endDateTime")
+    location: str | None = None
+    description: str | None = None
     confidence: float = Field(ge=0.0, le=1.0)
 
     model_config = {"populate_by_name": True}
