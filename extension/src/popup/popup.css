@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  width: 280px;
+  width: 300px;
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   background: #ffffff;
   color: #1a1a1a;
@@ -12,13 +12,45 @@ body {
 
 h1 {
   font-size: 16px;
-  margin: 0 0 8px 0;
+  margin: 0 0 12px 0;
 }
 
-#status {
+.hidden {
+  display: none;
+}
+
+.view {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.status-text {
   font-size: 13px;
   color: #4a4a4a;
-  margin-bottom: 12px;
+  margin: 0 0 4px 0;
+}
+
+.error-text {
+  color: #c5221f;
+}
+
+label {
+  font-size: 12px;
+  color: #4a4a4a;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+input,
+textarea {
+  font-family: inherit;
+  font-size: 13px;
+  padding: 6px 8px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  resize: vertical;
 }
 
 button {
@@ -30,26 +62,30 @@ button {
   color: white;
   font-size: 13px;
   cursor: pointer;
+  margin-top: 4px;
 }
 
 button:hover {
   background: #1558b0;
 }
 
-.hidden {
-  display: none;
-}
-
-#logout-btn {
+button.secondary {
   background: #f1f3f4;
   color: #1a1a1a;
-  margin-top: 6px;
 }
 
-#logout-btn:hover {
+button.secondary:hover {
   background: #e2e4e6;
 }
 
-#analyze-btn {
-  margin-top: 6px;
+.link-button {
+  display: block;
+  text-align: center;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #e8f0fe;
+  color: #1a73e8;
+  text-decoration: none;
+  font-size: 13px;
+  margin-top: 4px;
 }

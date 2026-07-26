@@ -8,10 +8,66 @@
   <body>
     <main class="container">
       <h1>Asistente Académico</h1>
-      <p id="status">Verificando sesión...</p>
-      <button id="login-btn">Iniciar sesión con Google</button>
-      <button id="logout-btn" class="hidden">Cerrar sesión</button>
-      <button id="analyze-btn" class="hidden">Analizar página actual</button>
+
+      <!-- Vista: sin sesión -->
+      <section id="view-auth" class="view hidden">
+        <p class="status-text">No has iniciado sesión con Google.</p>
+        <button id="login-btn">Iniciar sesión con Google</button>
+      </section>
+
+      <!-- Vista: sesión activa, listo para analizar -->
+      <section id="view-main" class="view hidden">
+        <p class="status-text">Sesión activa con Google ✅</p>
+        <button id="analyze-btn">Analizar página actual</button>
+        <button id="logout-btn" class="secondary">Cerrar sesión</button>
+      </section>
+
+      <!-- Vista: analizando -->
+      <section id="view-loading" class="view hidden">
+        <p class="status-text" id="loading-text">Analizando página...</p>
+      </section>
+
+      <!-- Vista: Vista Previa del Evento (editable) -->
+      <section id="view-preview" class="view hidden">
+        <p class="status-text" id="confidence-text"></p>
+
+        <label>Título
+          <input type="text" id="field-title" maxlength="200" />
+        </label>
+        <label>Fecha
+          <input type="date" id="field-date" />
+        </label>
+        <label>Hora
+          <input type="time" id="field-time" />
+        </label>
+        <label>Ubicación
+          <input type="text" id="field-location" maxlength="300" placeholder="Aula, edificio, Zoom, etc." />
+        </label>
+        <label>Descripción
+          <textarea id="field-description" maxlength="2000" rows="3"></textarea>
+        </label>
+
+        <button id="confirm-btn">Confirmar Evento</button>
+        <button id="cancel-preview-btn" class="secondary">Cancelar</button>
+      </section>
+
+      <!-- Vista: creando evento -->
+      <section id="view-creating" class="view hidden">
+        <p class="status-text">Creando evento en Google Calendar...</p>
+      </section>
+
+      <!-- Vista: éxito -->
+      <section id="view-success" class="view hidden">
+        <p class="status-text">Evento creado correctamente ✅</p>
+        <a id="calendar-link" href="#" target="_blank" class="link-button">Abrir en Google Calendar</a>
+        <button id="finish-btn">Finalizar</button>
+      </section>
+
+      <!-- Vista: error -->
+      <section id="view-error" class="view hidden">
+        <p class="status-text error-text" id="error-text"></p>
+        <button id="retry-btn">Volver a intentar</button>
+      </section>
     </main>
     <script src="popup.js" type="module"></script>
   </body>

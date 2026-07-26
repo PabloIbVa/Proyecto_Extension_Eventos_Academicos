@@ -1,12 +1,11 @@
 // background.ts
 // Service worker de la extensión (Manifest V3).
+// Responsabilidad: manejar el ciclo de vida del login con Google. El
+// análisis de contenido y la creación de eventos los hace el popup
+// directamente (fetch al BFF), ya que tiene los mismos host_permissions.
+export {};
 
 const BFF_BASE_URL = "http://localhost:3000";
-// Prefijo de la página de éxito servida por el Calendar Service. La
-// extensión vigila cuándo una pestaña llega a esta URL para capturar el
-// token del fragmento (#), en vez de que el backend intente redirigir
-// directamente a chrome-extension://... (Chromium bloquea ese tipo de
-// redirección iniciada desde una página http normal).
 const AUTH_SUCCESS_URL_PREFIX = "http://localhost:3001/auth/success";
 
 interface StoredSession {
@@ -19,17 +18,6 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (message?.type === "PING") {
-    sendResponse({ type: "PONG", timestamp: Date.now() });
-    return true;
-  }
-
-  if (message?.type === "ANALYZE_PAGE_CONTENT") {
-    console.log("[background] Contenido recibido para análisis:", message.payload);
-    sendResponse({ type: "ANALYSIS_PENDING" });
-    return true;
-  }
-
   if (message?.type === "START_GOOGLE_LOGIN") {
     chrome.tabs.create({ url: `${BFF_BASE_URL}/auth/google` });
     return false;
@@ -52,8 +40,8 @@ function parseFragmentParams(url: string): URLSearchParams {
 }
 
 // Vigila cualquier pestaña que llegue a la página de éxito del Calendar
-// Service. Ahí extrae el token del fragmento de la URL, lo guarda, y
-// cierra la pestaña automáticamente.
+// Service, captura el token del fragmento de la URL, lo guarda, y cierra
+// la pestaña automáticamente.
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   const url = changeInfo.url;
   if (!url || !url.startsWith(AUTH_SUCCESS_URL_PREFIX)) return;
