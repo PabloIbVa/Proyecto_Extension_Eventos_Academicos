@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  width: 300px;
+  width: 340px;
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   background: #ffffff;
   color: #1a1a1a;
@@ -88,4 +88,76 @@ button.secondary:hover {
   text-decoration: none;
   font-size: 13px;
   margin-top: 4px;
+}
+
+.chat-box {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px;
+  background: #fafafa;
+  margin-bottom: 4px;
+}
+
+.chat-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #8a8a8a;
+  margin: 0 0 6px 0;
+}
+
+.chat-transcript {
+  max-height: 150px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 2px;
+}
+
+.chat-bubble {
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 6px 9px;
+  border-radius: 10px;
+  max-width: 88%;
+  word-wrap: break-word;
+}
+
+.chat-bubble.assistant {
+  align-self: flex-start;
+  background: #eef1f3;
+  color: #1a1a1a;
+  border-bottom-left-radius: 3px;
+}
+
+.chat-bubble.user {
+  align-self: flex-end;
+  background: #1a73e8;
+  color: white;
+  border-bottom-right-radius: 3px;
+}
+
+.chat-bubble.typing {
+  font-style: italic;
+  color: #8a8a8a;
+  background: transparent;
+  padding: 2px 4px;
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.chat-input-row input {
+  flex: 1;
+  margin: 0;
+}
+
+.chat-input-row button {
+  width: auto;
+  margin: 0;
+  padding: 6px 10px;
 }

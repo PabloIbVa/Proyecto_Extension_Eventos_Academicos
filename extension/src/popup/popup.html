@@ -31,6 +31,20 @@
       <section id="view-preview" class="view hidden">
         <p class="status-text" id="confidence-text"></p>
 
+        <div class="chat-box">
+          <p class="chat-title">Asistente</p>
+          <div id="chat-transcript" class="chat-transcript"></div>
+          <div class="chat-input-row">
+            <input
+              type="text"
+              id="chat-input"
+              placeholder="Escríbele al asistente (ej. 'mejor el viernes a las 3pm')"
+              maxlength="500"
+            />
+            <button id="chat-send-btn" type="button">Enviar</button>
+          </div>
+        </div>
+
         <label>Título
           <input type="text" id="field-title" maxlength="200" />
         </label>

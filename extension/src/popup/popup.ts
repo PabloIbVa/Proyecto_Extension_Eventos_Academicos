@@ -17,6 +17,26 @@ interface AnalysisResult {
   confidence: number;
 }
 
+interface EventState {
+  title: string | null;
+  startDateTime: string | null;
+  location: string | null;
+  description: string | null;
+}
+
+interface ChatTurn {
+  role: "user" | "assistant";
+  content: string;
+}
+
+interface ChatResult {
+  reply: string;
+  event: EventState;
+  missingFields: string[];
+}
+
+let chatHistory: ChatTurn[] = [];
+
 type ViewName =
   | "auth"
   | "main"
@@ -132,6 +152,113 @@ function renderPreview(result: AnalysisResult) {
       : `Datos detectados (confianza ${pct}%). Puedes editarlos antes de confirmar.`;
 
   showView("preview");
+  startChatForPreview();
+}
+
+// ---------- Chat del asistente (rellenar y modificar datos por conversación) ----------
+
+function getCurrentEventFromFields(): EventState {
+  const title = (document.getElementById("field-title") as HTMLInputElement).value.trim();
+  const date = (document.getElementById("field-date") as HTMLInputElement).value;
+  const time = (document.getElementById("field-time") as HTMLInputElement).value;
+  const location = (document.getElementById("field-location") as HTMLInputElement).value.trim();
+  const description = (
+    document.getElementById("field-description") as HTMLTextAreaElement
+  ).value.trim();
+
+  return {
+    title: title || null,
+    startDateTime: dateAndTimeToIso(date, time),
+    location: location || null,
+    description: description || null,
+  };
+}
+
+function applyEventStateToFields(event: EventState) {
+  if (event.title !== null) {
+    (document.getElementById("field-title") as HTMLInputElement).value = event.title;
+  }
+  if (event.startDateTime !== null) {
+    const { date, time } = isoToDateAndTime(event.startDateTime);
+    (document.getElementById("field-date") as HTMLInputElement).value = date;
+    (document.getElementById("field-time") as HTMLInputElement).value = time;
+  }
+  if (event.location !== null) {
+    (document.getElementById("field-location") as HTMLInputElement).value = event.location;
+  }
+  if (event.description !== null) {
+    (document.getElementById("field-description") as HTMLTextAreaElement).value =
+      event.description;
+  }
+}
+
+function appendChatBubble(role: "user" | "assistant", text: string): HTMLDivElement {
+  const transcript = document.getElementById("chat-transcript") as HTMLDivElement;
+  const bubble = document.createElement("div");
+  bubble.className = `chat-bubble ${role}`;
+  bubble.textContent = text;
+  transcript.appendChild(bubble);
+  transcript.scrollTop = transcript.scrollHeight;
+  return bubble;
+}
+
+function setChatInputEnabled(enabled: boolean) {
+  (document.getElementById("chat-input") as HTMLInputElement).disabled = !enabled;
+  (document.getElementById("chat-send-btn") as HTMLButtonElement).disabled = !enabled;
+}
+
+async function callChat(message: string, isGreeting: boolean): Promise<ChatResult> {
+  const response = await fetch(`${BFF_BASE_URL}/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message,
+      currentEvent: getCurrentEventFromFields(),
+      history: chatHistory,
+      isGreeting,
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body?.message || "El asistente no está disponible en este momento.");
+  }
+
+  return response.json();
+}
+
+async function sendChatMessage(message: string, isGreeting = false) {
+  setChatInputEnabled(false);
+  const typingBubble = appendChatBubble("assistant", "Escribiendo...");
+  typingBubble.classList.add("typing");
+
+  try {
+    const result = await callChat(message, isGreeting);
+
+    typingBubble.remove();
+    appendChatBubble("assistant", result.reply);
+    applyEventStateToFields(result.event);
+
+    if (!isGreeting) {
+      chatHistory.push({ role: "user", content: message });
+    }
+    chatHistory.push({ role: "assistant", content: result.reply });
+  } catch (error) {
+    typingBubble.remove();
+    appendChatBubble(
+      "assistant",
+      error instanceof Error ? error.message : "Ocurrió un error inesperado."
+    );
+  } finally {
+    setChatInputEnabled(true);
+    (document.getElementById("chat-input") as HTMLInputElement).focus();
+  }
+}
+
+function startChatForPreview() {
+  chatHistory = [];
+  (document.getElementById("chat-transcript") as HTMLDivElement).innerHTML = "";
+  void sendChatMessage("", true);
 }
 
 // ---------- Paso 4: confirmar y crear el evento real ----------
@@ -203,6 +330,21 @@ document.getElementById("analyze-btn")!.addEventListener("click", async () => {
 
 document.getElementById("cancel-preview-btn")!.addEventListener("click", () => {
   showView("main");
+});
+
+document.getElementById("chat-send-btn")!.addEventListener("click", () => {
+  const input = document.getElementById("chat-input") as HTMLInputElement;
+  const message = input.value.trim();
+  if (!message) return;
+  appendChatBubble("user", message);
+  input.value = "";
+  void sendChatMessage(message);
+});
+
+document.getElementById("chat-input")!.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    (document.getElementById("chat-send-btn") as HTMLButtonElement).click();
+  }
 });
 
 document.getElementById("confirm-btn")!.addEventListener("click", async () => {

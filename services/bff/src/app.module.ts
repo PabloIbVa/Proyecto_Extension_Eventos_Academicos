@@ -6,6 +6,7 @@ import { AnalyzeModule } from './analyze/analyze.module';
 import { EventsModule } from './events/events.module';
 import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
+import { ChatModule } from './chat/chat.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -18,6 +19,7 @@ import configuration from './config/configuration';
     EventsModule,
     AuthModule,
     HealthModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],
