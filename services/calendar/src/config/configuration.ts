@@ -8,6 +8,10 @@ export default () => ({
     redirectUri:
       process.env.GOOGLE_REDIRECT_URI ??
       'http://localhost:3001/auth/google/callback',
-    scopes: ['https://www.googleapis.com/auth/calendar.events'],
+    scopes: [
+      'https://www.googleapis.com/auth/calendar.events',
+      'openid',
+      'https://www.googleapis.com/auth/userinfo.email',
+    ],
   },
 });

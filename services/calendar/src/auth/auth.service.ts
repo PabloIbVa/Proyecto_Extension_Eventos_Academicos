@@ -19,7 +19,10 @@ export class AuthService {
     const { scopes } = this.configService.get('google');
     return oauth2Client.generateAuthUrl({
       access_type: 'offline', // permite recibir refresh_token
-      prompt: 'consent', // fuerza a Google a re-emitir refresh_token siempre
+      // "select_account" obliga a Google a mostrar el selector de cuentas
+      // en cada login (útil para cambiar de cuenta), y "consent" fuerza a
+      // reemitir refresh_token siempre.
+      prompt: 'select_account consent',
       scope: scopes,
     });
   }
@@ -28,6 +31,7 @@ export class AuthService {
     access_token?: string | null;
     refresh_token?: string | null;
     expiry_date?: number | null;
+    id_token?: string | null;
   }> {
     const oauth2Client = this.buildOAuthClient();
     try {
@@ -36,6 +40,22 @@ export class AuthService {
     } catch (error) {
       this.logger.error('Error al intercambiar el código de Google por tokens', error as Error);
       throw error;
+    }
+  }
+
+  // Extrae el email del id_token (JWT) sin verificar la firma — solo se
+  // usa para mostrarlo en la UI ("cuenta conectada"), nunca para
+  // autorizar nada, así que no hace falta validarlo criptográficamente
+  // aquí (Google ya lo emitió confiablemente en el intercambio anterior).
+  extractEmailFromIdToken(idToken: string | null | undefined): string | null {
+    if (!idToken) return null;
+    try {
+      const payloadBase64 = idToken.split('.')[1];
+      const payloadJson = Buffer.from(payloadBase64, 'base64').toString('utf-8');
+      const payload = JSON.parse(payloadJson) as { email?: string };
+      return payload.email ?? null;
+    } catch {
+      return null;
     }
   }
 }

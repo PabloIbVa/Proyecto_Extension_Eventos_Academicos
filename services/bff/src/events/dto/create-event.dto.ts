@@ -22,4 +22,9 @@ export class CreateEventDto {
   @IsOptional()
   @MaxLength(300)
   location?: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  timeZone?: string;
 }

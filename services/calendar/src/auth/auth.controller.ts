@@ -31,9 +31,11 @@ export class AuthController {
 
     try {
       const tokens = await this.authService.exchangeCodeForTokens(code);
+      const email = this.authService.extractEmailFromIdToken(tokens.id_token);
       const fragment = new URLSearchParams({
         access_token: tokens.access_token ?? '',
         expires_in: String(tokens.expiry_date ?? ''),
+        email: email ?? '',
       }).toString();
       return res.redirect(`/auth/success#${fragment}`);
     } catch {

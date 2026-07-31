@@ -11,6 +11,7 @@ const AUTH_SUCCESS_URL_PREFIX = "http://localhost:3001/auth/success";
 interface StoredSession {
   accessToken: string;
   expiresAt: number | null;
+  email: string | null;
 }
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -50,6 +51,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   const error = params.get("error");
   const accessToken = params.get("access_token");
   const expiresIn = params.get("expires_in");
+  const email = params.get("email");
 
   if (error) {
     console.warn("[background] Error al iniciar sesión con Google:", error);
@@ -62,6 +64,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   const session: StoredSession = {
     accessToken,
     expiresAt: expiresIn ? Number(expiresIn) : null,
+    email: email || null,
   };
 
   chrome.storage.local.set({ googleSession: session }).then(() => {

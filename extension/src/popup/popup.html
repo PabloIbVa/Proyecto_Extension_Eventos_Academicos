@@ -7,24 +7,26 @@
   </head>
   <body>
     <main class="container">
-      <h1>Asistente Académico</h1>
+      <div class="header-row">
+        <h1 id="app-title" data-i18n="appTitle">Asistente Académico</h1>
+        <button id="settings-btn" class="icon-btn" title="Configuración" aria-label="Configuración">⚙</button>
+      </div>
 
       <!-- Vista: sin sesión -->
       <section id="view-auth" class="view hidden">
-        <p class="status-text">No has iniciado sesión con Google.</p>
-        <button id="login-btn">Iniciar sesión con Google</button>
+        <p class="status-text" data-i18n="authStatus">No has iniciado sesión con Google.</p>
+        <button id="login-btn" data-i18n="loginBtn">Iniciar sesión con Google</button>
       </section>
 
       <!-- Vista: sesión activa, listo para analizar -->
       <section id="view-main" class="view hidden">
-        <p class="status-text">Sesión activa con Google ✅</p>
-        <button id="analyze-btn">Analizar página actual</button>
-        <button id="logout-btn" class="secondary">Cerrar sesión</button>
+        <p class="status-text" id="main-session-text" data-i18n="mainSessionActive">Sesión activa con Google ✅</p>
+        <button id="analyze-btn" data-i18n="analyzeBtn">Analizar página actual</button>
       </section>
 
       <!-- Vista: analizando -->
       <section id="view-loading" class="view hidden">
-        <p class="status-text" id="loading-text">Analizando página...</p>
+        <p class="status-text" id="loading-text" data-i18n="loadingText">Analizando página...</p>
       </section>
 
       <!-- Vista: Vista Previa del Evento (editable) -->
@@ -32,55 +34,80 @@
         <p class="status-text" id="confidence-text"></p>
 
         <div class="chat-box">
-          <p class="chat-title">Asistente</p>
+          <p class="chat-title" data-i18n="chatTitle">Asistente</p>
           <div id="chat-transcript" class="chat-transcript"></div>
           <div class="chat-input-row">
             <input
               type="text"
               id="chat-input"
+              data-i18n-placeholder="chatPlaceholder"
               placeholder="Escríbele al asistente (ej. 'mejor el viernes a las 3pm')"
               maxlength="500"
             />
-            <button id="chat-send-btn" type="button">Enviar</button>
+            <button id="chat-send-btn" type="button" data-i18n="chatSend">Enviar</button>
           </div>
         </div>
 
-        <label>Título
+        <label><span data-i18n="fieldTitle">Título</span>
           <input type="text" id="field-title" maxlength="200" />
         </label>
-        <label>Fecha
+        <label><span data-i18n="fieldDate">Fecha</span>
           <input type="date" id="field-date" />
         </label>
-        <label>Hora
+        <label><span data-i18n="fieldTime">Hora</span>
           <input type="time" id="field-time" />
         </label>
-        <label>Ubicación
+        <label><span data-i18n="fieldLocation">Ubicación</span>
           <input type="text" id="field-location" maxlength="300" placeholder="Aula, edificio, Zoom, etc." />
         </label>
-        <label>Descripción
+        <label><span data-i18n="fieldDescription">Descripción</span>
           <textarea id="field-description" maxlength="2000" rows="3"></textarea>
         </label>
 
-        <button id="confirm-btn">Confirmar Evento</button>
-        <button id="cancel-preview-btn" class="secondary">Cancelar</button>
+        <button id="confirm-btn" data-i18n="confirmBtn">Confirmar Evento</button>
+        <button id="cancel-preview-btn" class="secondary" data-i18n="cancelBtn">Cancelar</button>
       </section>
 
       <!-- Vista: creando evento -->
       <section id="view-creating" class="view hidden">
-        <p class="status-text">Creando evento en Google Calendar...</p>
+        <p class="status-text" data-i18n="creatingText">Creando evento en Google Calendar...</p>
       </section>
 
       <!-- Vista: éxito -->
       <section id="view-success" class="view hidden">
-        <p class="status-text">Evento creado correctamente ✅</p>
-        <a id="calendar-link" href="#" target="_blank" class="link-button">Abrir en Google Calendar</a>
-        <button id="finish-btn">Finalizar</button>
+        <p class="status-text" data-i18n="successText">Evento creado correctamente ✅</p>
+        <a id="calendar-link" href="#" target="_blank" class="link-button" data-i18n="openCalendar">Abrir en Google Calendar</a>
+        <button id="finish-btn" data-i18n="finishBtn">Finalizar</button>
       </section>
 
       <!-- Vista: error -->
       <section id="view-error" class="view hidden">
         <p class="status-text error-text" id="error-text"></p>
-        <button id="retry-btn">Volver a intentar</button>
+        <button id="retry-btn" data-i18n="retryBtn">Volver a intentar</button>
+      </section>
+
+      <!-- Vista: Configuración (I-08) -->
+      <section id="view-settings" class="view hidden">
+        <label><span data-i18n="settingsLanguage">Idioma</span>
+          <select id="setting-language">
+            <option value="es">Español</option>
+            <option value="en">English</option>
+          </select>
+        </label>
+
+        <label><span data-i18n="settingsTimezone">Zona horaria</span>
+          <select id="setting-timezone"></select>
+        </label>
+
+        <div class="settings-block">
+          <p class="settings-label" data-i18n="settingsAccount">Cuenta conectada</p>
+          <p class="status-text" id="connected-account-text">—</p>
+          <button id="logout-btn" class="secondary" data-i18n="logoutBtn">Cerrar sesión</button>
+        </div>
+
+        <p class="version-text" id="version-text">Versión 0.1.0</p>
+
+        <button id="close-settings-btn" data-i18n="closeBtn">Cerrar</button>
       </section>
     </main>
     <script src="popup.js" type="module"></script>

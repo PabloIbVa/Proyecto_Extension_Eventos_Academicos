@@ -22,4 +22,11 @@ export class CreateEventDto {
   @IsOptional()
   @MaxLength(300)
   location?: string;
+
+  // IANA timezone, ej. "America/Mexico_City". Si no se envía, se usa un
+  // default razonable en events.service.ts.
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  timeZone?: string;
 }
