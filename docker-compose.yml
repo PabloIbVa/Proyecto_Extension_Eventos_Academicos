@@ -1,0 +1,49 @@
+services:
+  bff:
+    build: ./services/bff
+    container_name: eventos-academicos-bff
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      FRONTEND_ORIGINS: ""
+      # Dentro de la red de Docker Compose, los servicios se llaman por su
+      # nombre de servicio, no por localhost.
+      CALENDAR_SERVICE_URL: http://calendar-service:3001
+      # Esta SÍ debe seguir siendo localhost: la sigue el navegador del
+      # usuario, que vive fuera de los contenedores.
+      CALENDAR_SERVICE_PUBLIC_URL: http://localhost:3001
+      AI_SERVICE_URL: http://ai-service:8000
+    depends_on:
+      - calendar-service
+      - ai-service
+    restart: unless-stopped
+
+  calendar-service:
+    build: ./services/calendar
+    container_name: eventos-academicos-calendar-service
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      # Este SIEMPRE debe coincidir con lo registrado en Google Cloud
+      # Console. Es localhost porque Google redirige al navegador del
+      # usuario, no a un contenedor.
+      GOOGLE_REDIRECT_URI: http://localhost:3001/auth/google/callback
+    restart: unless-stopped
+
+  ai-service:
+    build: ./services/ai
+    container_name: eventos-academicos-ai-service
+    ports:
+      - "8000:8000"
+    environment:
+      PORT: 8000
+      AI_PROVIDER: ${AI_PROVIDER:-gemini}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.1-flash-lite}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      OPENROUTER_MODEL: ${OPENROUTER_MODEL:-meta-llama/llama-3.3-70b-instruct:free}
+    restart: unless-stopped
