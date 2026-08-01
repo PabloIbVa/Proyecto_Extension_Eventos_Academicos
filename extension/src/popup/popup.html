@@ -2,112 +2,201 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <title>Asistente de Eventos Académicos</title>
+    <title>AulaPlan</title>
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
-    <main class="container">
-      <div class="header-row">
-        <h1 id="app-title" data-i18n="appTitle">Asistente Académico</h1>
-        <button id="settings-btn" class="icon-btn" title="Configuración" aria-label="Configuración">⚙</button>
-      </div>
-
-      <!-- Vista: sin sesión -->
-      <section id="view-auth" class="view hidden">
-        <p class="status-text" data-i18n="authStatus">No has iniciado sesión con Google.</p>
-        <button id="login-btn" data-i18n="loginBtn">Iniciar sesión con Google</button>
+    <main class="app-shell">
+      <section id="view-auth" class="view auth-view hidden">
+        <div class="brand-mark">AP</div>
+        <p class="eyebrow" data-i18n="authEyebrow">Calendario inteligente</p>
+        <h1 data-i18n="appTitle">AulaPlan</h1>
+        <p class="hero-copy" data-i18n="authStatus">
+          Inicia sesion con Google para convertir paginas academicas en tareas de calendario.
+        </p>
+        <button id="login-btn" class="primary-btn" data-i18n="loginBtn">
+          Iniciar sesion con Google
+        </button>
       </section>
 
-      <!-- Vista: sesión activa, listo para analizar -->
-      <section id="view-main" class="view hidden">
-        <p class="status-text" id="main-session-text" data-i18n="mainSessionActive">Sesión activa con Google ✅</p>
-        <button id="analyze-btn" data-i18n="analyzeBtn">Analizar página actual</button>
+      <section id="view-main" class="view main-view hidden">
+        <header class="screen-header">
+          <div>
+            <p class="eyebrow" data-i18n="mainEyebrow">Extension activa</p>
+            <h1 data-i18n="appTitle">AulaPlan</h1>
+          </div>
+          <div class="header-actions">
+            <button id="theme-toggle-btn" class="icon-btn" title="Cambiar tema" aria-label="Cambiar tema">
+              <span id="theme-toggle-icon">☾</span>
+            </button>
+            <button id="settings-btn" class="icon-btn" title="Configuracion" aria-label="Configuracion">
+              ⚙
+            </button>
+          </div>
+        </header>
+
+        <div class="welcome-panel">
+          <p class="welcome-title" data-i18n="welcomeTitle">Hola, listo para organizar tu dia.</p>
+          <p class="status-text" id="main-session-text" data-i18n="mainSessionActive">
+            Sesion activa con Google
+          </p>
+        </div>
+
+        <button id="analyze-btn" class="primary-btn pulse-btn" data-i18n="analyzeBtn">
+          Analizar pagina actual
+        </button>
       </section>
 
-      <!-- Vista: analizando -->
-      <section id="view-loading" class="view hidden">
-        <p class="status-text" id="loading-text" data-i18n="loadingText">Analizando página...</p>
+      <section id="view-loading" class="view loading-view hidden">
+        <div class="loader-orbit">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <h1 data-i18n="loadingTitle">Revisando la pagina</h1>
+        <p class="status-text" id="loading-text" data-i18n="loadingText">
+          Estamos detectando fecha, hora y detalles importantes.
+        </p>
       </section>
 
-      <!-- Vista: Vista Previa del Evento (editable) -->
-      <section id="view-preview" class="view hidden">
-        <p class="status-text" id="confidence-text"></p>
+      <section id="view-preview" class="view preview-view hidden">
+        <header class="screen-header compact">
+          <div>
+            <p class="eyebrow" data-i18n="previewEyebrow">Vista previa</p>
+            <h1 data-i18n="previewTitle">Nueva asignacion</h1>
+          </div>
+        </header>
 
-        <div class="chat-box">
-          <p class="chat-title" data-i18n="chatTitle">Asistente</p>
+        <p class="confidence-pill" id="confidence-text"></p>
+
+        <div id="preview-form-panel" class="preview-panel">
+          <label>
+            <span data-i18n="fieldTitle">Titulo</span>
+            <input type="text" id="field-title" maxlength="200" />
+          </label>
+
+          <div class="field-grid">
+            <label>
+              <span data-i18n="fieldDate">Fecha</span>
+              <input type="date" id="field-date" />
+            </label>
+            <label>
+              <span data-i18n="fieldTime">Hora</span>
+              <input type="time" id="field-time" />
+            </label>
+          </div>
+
+          <label>
+            <span data-i18n="fieldLocation">Ubicacion</span>
+            <input type="text" id="field-location" maxlength="300" placeholder="Aula, edificio, Zoom, etc." />
+          </label>
+          <label>
+            <span data-i18n="fieldDescription">Descripcion</span>
+            <textarea id="field-description" maxlength="2000" rows="4"></textarea>
+          </label>
+        </div>
+
+        <div class="action-row">
+          <button id="cancel-preview-btn" class="ghost-btn" data-i18n="backBtn">Regresar</button>
+          <button id="open-chat-btn" class="secondary-btn" data-i18n="openChatBtn">Chatear con IA</button>
+        </div>
+        <button id="confirm-btn" class="primary-btn" data-i18n="confirmBtn">
+          Agregar al calendario
+        </button>
+      </section>
+
+      <section id="view-chat" class="view chat-view hidden">
+        <header class="screen-header compact">
+          <div>
+            <p class="eyebrow" data-i18n="chatEyebrow">Ajustes con IA</p>
+            <h1 data-i18n="chatViewTitle">Refinar asignacion</h1>
+          </div>
+        </header>
+
+        <div class="chat-panel">
+          <div class="chat-heading">
+            <div>
+              <p class="chat-title" data-i18n="chatTitle">Asistente</p>
+              <p class="status-text" data-i18n="chatHelp">Pidele cambios y actualizare los datos de la asignacion.</p>
+            </div>
+          </div>
           <div id="chat-transcript" class="chat-transcript"></div>
+          <p id="chat-update-text" class="update-hint hidden" data-i18n="chatUpdated">
+            Cambios listos para revisar.
+          </p>
           <div class="chat-input-row">
             <input
               type="text"
               id="chat-input"
               data-i18n-placeholder="chatPlaceholder"
-              placeholder="Escríbele al asistente (ej. 'mejor el viernes a las 3pm')"
+              placeholder="Ej. cambialo al viernes a las 3pm"
               maxlength="500"
             />
-            <button id="chat-send-btn" type="button" data-i18n="chatSend">Enviar</button>
+            <button id="chat-send-btn" class="send-btn" type="button" data-i18n="chatSend">Enviar</button>
           </div>
         </div>
 
-        <label><span data-i18n="fieldTitle">Título</span>
-          <input type="text" id="field-title" maxlength="200" />
-        </label>
-        <label><span data-i18n="fieldDate">Fecha</span>
-          <input type="date" id="field-date" />
-        </label>
-        <label><span data-i18n="fieldTime">Hora</span>
-          <input type="time" id="field-time" />
-        </label>
-        <label><span data-i18n="fieldLocation">Ubicación</span>
-          <input type="text" id="field-location" maxlength="300" placeholder="Aula, edificio, Zoom, etc." />
-        </label>
-        <label><span data-i18n="fieldDescription">Descripción</span>
-          <textarea id="field-description" maxlength="2000" rows="3"></textarea>
-        </label>
-
-        <button id="confirm-btn" data-i18n="confirmBtn">Confirmar Evento</button>
-        <button id="cancel-preview-btn" class="secondary" data-i18n="cancelBtn">Cancelar</button>
+        <button id="return-form-btn" class="primary-btn" type="button" data-i18n="returnFormBtn">
+          Ver formulario actualizado
+        </button>
       </section>
 
-      <!-- Vista: creando evento -->
-      <section id="view-creating" class="view hidden">
-        <p class="status-text" data-i18n="creatingText">Creando evento en Google Calendar...</p>
+      <section id="view-creating" class="view loading-view hidden">
+        <div class="loader-orbit calendar-loader">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <h1 data-i18n="creatingTitle">Preparando tu calendario</h1>
+        <p class="status-text" data-i18n="creatingText">Creando el evento en Google Calendar...</p>
       </section>
 
-      <!-- Vista: éxito -->
-      <section id="view-success" class="view hidden">
-        <p class="status-text" data-i18n="successText">Evento creado correctamente ✅</p>
-        <a id="calendar-link" href="#" target="_blank" class="link-button" data-i18n="openCalendar">Abrir en Google Calendar</a>
-        <button id="finish-btn" data-i18n="finishBtn">Finalizar</button>
+      <section id="view-success" class="view success-view hidden">
+        <div class="success-disc">
+          <div class="checkmark">✓</div>
+        </div>
+        <h1 data-i18n="successText">Asignacion agregada</h1>
+        <a id="calendar-link" href="#" target="_blank" class="link-button" data-i18n="openCalendar">
+          Abrir en Google Calendar
+        </a>
+        <button id="finish-btn" class="primary-btn" data-i18n="finishBtn">Analizar otra pagina</button>
       </section>
 
-      <!-- Vista: error -->
-      <section id="view-error" class="view hidden">
+      <section id="view-error" class="view error-view hidden">
+        <h1 data-i18n="errorTitle">Algo no salio bien</h1>
         <p class="status-text error-text" id="error-text"></p>
-        <button id="retry-btn" data-i18n="retryBtn">Volver a intentar</button>
+        <button id="retry-btn" class="primary-btn" data-i18n="retryBtn">Volver a intentar</button>
       </section>
 
-      <!-- Vista: Configuración (I-08) -->
-      <section id="view-settings" class="view hidden">
-        <label><span data-i18n="settingsLanguage">Idioma</span>
+      <section id="view-settings" class="view settings-view hidden">
+        <header class="screen-header compact">
+          <div>
+            <p class="eyebrow" data-i18n="settingsEyebrow">Preferencias</p>
+            <h1 data-i18n="settingsTitle">Configuracion</h1>
+          </div>
+        </header>
+
+        <label>
+          <span data-i18n="settingsLanguage">Idioma</span>
           <select id="setting-language">
-            <option value="es">Español</option>
+            <option value="es">Espanol</option>
             <option value="en">English</option>
           </select>
         </label>
 
-        <label><span data-i18n="settingsTimezone">Zona horaria</span>
+        <label>
+          <span data-i18n="settingsTimezone">Zona horaria</span>
           <select id="setting-timezone"></select>
         </label>
 
         <div class="settings-block">
           <p class="settings-label" data-i18n="settingsAccount">Cuenta conectada</p>
-          <p class="status-text" id="connected-account-text">—</p>
-          <button id="logout-btn" class="secondary" data-i18n="logoutBtn">Cerrar sesión</button>
+          <p class="status-text" id="connected-account-text">-</p>
+          <button id="logout-btn" class="secondary-btn" data-i18n="logoutBtn">Cerrar sesion</button>
         </div>
 
-        <p class="version-text" id="version-text">Versión 0.1.0</p>
-
-        <button id="close-settings-btn" data-i18n="closeBtn">Cerrar</button>
+        <p class="version-text" id="version-text">Version 0.2.0</p>
+        <button id="close-settings-btn" class="primary-btn" data-i18n="closeBtn">Cerrar</button>
       </section>
     </main>
     <script src="popup.js" type="module"></script>

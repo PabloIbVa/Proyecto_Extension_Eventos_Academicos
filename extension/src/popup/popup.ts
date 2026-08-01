@@ -15,6 +15,7 @@ interface StoredSession {
 interface Preferences {
   language: "es" | "en";
   timeZone: string;
+  theme: "dark" | "light";
 }
 
 interface AnalysisResult {
@@ -49,6 +50,7 @@ type ViewName =
   | "main"
   | "loading"
   | "preview"
+  | "chat"
   | "creating"
   | "success"
   | "error"
@@ -58,49 +60,76 @@ let chatHistory: ChatTurn[] = [];
 let preferences: Preferences = {
   language: "es",
   timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
+  theme: "dark",
 };
 let lastNonSettingsView: ViewName = "auth";
+let successReturnTimer: number | null = null;
 
 // ---------- i18n ----------
 
 const TRANSLATIONS: Record<string, Record<Preferences["language"], string>> = {
-  appTitle: { es: "Asistente Académico", en: "Academic Assistant" },
+  appTitle: { es: "AulaPlan", en: "AulaPlan" },
+  authEyebrow: { es: "Calendario inteligente", en: "Smart calendar" },
   authStatus: {
-    es: "No has iniciado sesión con Google.",
-    en: "You haven't signed in with Google.",
+    es: "Inicia sesion con Google para convertir paginas academicas en tareas de calendario.",
+    en: "Sign in with Google to turn academic pages into calendar tasks.",
   },
-  loginBtn: { es: "Iniciar sesión con Google", en: "Sign in with Google" },
-  mainSessionActive: { es: "Sesión activa con Google ✅", en: "Signed in with Google ✅" },
-  analyzeBtn: { es: "Analizar página actual", en: "Analyze current page" },
-  loadingText: { es: "Analizando página...", en: "Analyzing page..." },
+  loginBtn: { es: "Iniciar sesion con Google", en: "Sign in with Google" },
+  mainEyebrow: { es: "Extension activa", en: "Extension ready" },
+  welcomeTitle: {
+    es: "Hola, listo para organizar tu dia.",
+    en: "Hi, ready to organize your day.",
+  },
+  mainSessionActive: { es: "Sesion activa con Google", en: "Signed in with Google" },
+  analyzeBtn: { es: "Analizar pagina actual", en: "Analyze current page" },
+  loadingTitle: { es: "Revisando la pagina", en: "Reviewing the page" },
+  loadingText: {
+    es: "Estamos detectando fecha, hora y detalles importantes.",
+    en: "Detecting date, time, and important details.",
+  },
+  previewEyebrow: { es: "Vista previa", en: "Preview" },
+  previewTitle: { es: "Nueva asignacion", en: "New assignment" },
+  chatEyebrow: { es: "Ajustes con IA", en: "AI edits" },
+  chatViewTitle: { es: "Refinar asignacion", en: "Refine assignment" },
   chatTitle: { es: "Asistente", en: "Assistant" },
+  chatHelp: {
+    es: "Pidele cambios y actualizare los datos de la asignacion.",
+    en: "Ask for changes and I will update the assignment details.",
+  },
   chatPlaceholder: {
-    es: "Escríbele al asistente (ej. 'mejor el viernes a las 3pm')",
-    en: "Message the assistant (e.g. 'better Friday at 3pm')",
+    es: "Ej. cambialo al viernes a las 3pm",
+    en: "E.g. move it to Friday at 3pm",
   },
   chatSend: { es: "Enviar", en: "Send" },
-  fieldTitle: { es: "Título", en: "Title" },
+  chatUpdated: { es: "Cambios listos para revisar.", en: "Changes ready to review." },
+  returnFormBtn: { es: "Ver formulario actualizado", en: "View updated form" },
+  openChatBtn: { es: "Chatear con IA", en: "Chat with AI" },
+  backBtn: { es: "Regresar", en: "Back" },
+  fieldTitle: { es: "Titulo", en: "Title" },
   fieldDate: { es: "Fecha", en: "Date" },
   fieldTime: { es: "Hora", en: "Time" },
-  fieldLocation: { es: "Ubicación", en: "Location" },
-  fieldDescription: { es: "Descripción", en: "Description" },
-  confirmBtn: { es: "Confirmar Evento", en: "Confirm Event" },
-  cancelBtn: { es: "Cancelar", en: "Cancel" },
+  fieldLocation: { es: "Ubicacion", en: "Location" },
+  fieldDescription: { es: "Descripcion", en: "Description" },
+  confirmBtn: { es: "Agregar al calendario", en: "Add to calendar" },
+  creatingTitle: { es: "Preparando tu calendario", en: "Preparing your calendar" },
   creatingText: {
-    es: "Creando evento en Google Calendar...",
-    en: "Creating event in Google Calendar...",
+    es: "Creando el evento en Google Calendar...",
+    en: "Creating the event in Google Calendar...",
   },
-  successText: { es: "Evento creado correctamente ✅", en: "Event created successfully ✅" },
+  successText: { es: "Asignacion agregada", en: "Assignment added" },
   openCalendar: { es: "Abrir en Google Calendar", en: "Open in Google Calendar" },
-  finishBtn: { es: "Finalizar", en: "Finish" },
+  finishBtn: { es: "Analizar otra pagina", en: "Analyze another page" },
+  errorTitle: { es: "Algo no salio bien", en: "Something went wrong" },
   retryBtn: { es: "Volver a intentar", en: "Try again" },
+  settingsEyebrow: { es: "Preferencias", en: "Preferences" },
+  settingsTitle: { es: "Configuracion", en: "Settings" },
   settingsLanguage: { es: "Idioma", en: "Language" },
   settingsTimezone: { es: "Zona horaria", en: "Time zone" },
   settingsAccount: { es: "Cuenta conectada", en: "Connected account" },
-  logoutBtn: { es: "Cerrar sesión", en: "Sign out" },
+  logoutBtn: { es: "Cerrar sesion", en: "Sign out" },
   closeBtn: { es: "Cerrar", en: "Close" },
   noAccount: { es: "No hay cuenta conectada", en: "No account connected" },
-  versionLabel: { es: "Versión", en: "Version" },
+  versionLabel: { es: "Version", en: "Version" },
 };
 
 function t(key: string): string {
@@ -119,6 +148,12 @@ function applyTranslations() {
   document.documentElement.lang = preferences.language;
   (document.getElementById("version-text") as HTMLParagraphElement).textContent =
     `${t("versionLabel")} ${APP_VERSION}`;
+}
+
+function applyTheme() {
+  document.body.classList.toggle("light-theme", preferences.theme === "light");
+  const icon = document.getElementById("theme-toggle-icon");
+  if (icon) icon.textContent = preferences.theme === "light" ? "☀" : "☾";
 }
 
 // ---------- Zonas horarias ----------
@@ -177,6 +212,7 @@ async function loadPreferences() {
   preferences = {
     language: stored?.language ?? preferences.language,
     timeZone: stored?.timeZone ?? preferences.timeZone,
+    theme: stored?.theme ?? preferences.theme,
   };
 }
 
@@ -191,6 +227,7 @@ const views: Record<ViewName, HTMLElement> = {
   main: document.getElementById("view-main")!,
   loading: document.getElementById("view-loading")!,
   preview: document.getElementById("view-preview")!,
+  chat: document.getElementById("view-chat")!,
   creating: document.getElementById("view-creating")!,
   success: document.getElementById("view-success")!,
   error: document.getElementById("view-error")!,
@@ -198,6 +235,10 @@ const views: Record<ViewName, HTMLElement> = {
 };
 
 function showView(name: ViewName) {
+  if (successReturnTimer && name !== "success") {
+    window.clearTimeout(successReturnTimer);
+    successReturnTimer = null;
+  }
   if (name !== "settings") lastNonSettingsView = name;
   (Object.keys(views) as ViewName[]).forEach((key) => {
     views[key].classList.toggle("hidden", key !== name);
@@ -305,8 +346,8 @@ function renderPreview(result: AnalysisResult) {
   const pct = Math.round((result.confidence ?? 0) * 100);
   confidenceEl.textContent =
     pct < 40
-      ? `Confianza baja (${pct}%). Revisa y corrige los campos antes de confirmar.`
-      : `Datos detectados (confianza ${pct}%). Puedes editarlos antes de confirmar.`;
+      ? `Confianza baja: ${pct}%. Revisa los campos.`
+      : `Datos detectados: ${pct}% de confianza.`;
 
   showView("preview");
   startChatForPreview();
@@ -395,6 +436,9 @@ async function sendChatMessage(message: string, isGreeting = false) {
     typingBubble.remove();
     appendChatBubble("assistant", result.reply);
     applyEventStateToFields(result.event);
+    if (!isGreeting) {
+      document.getElementById("chat-update-text")!.classList.remove("hidden");
+    }
 
     if (!isGreeting) {
       chatHistory.push({ role: "user", content: message });
@@ -415,6 +459,7 @@ async function sendChatMessage(message: string, isGreeting = false) {
 function startChatForPreview() {
   chatHistory = [];
   (document.getElementById("chat-transcript") as HTMLDivElement).innerHTML = "";
+  document.getElementById("chat-update-text")!.classList.add("hidden");
   void sendChatMessage("", true);
 }
 
@@ -477,6 +522,12 @@ document.getElementById("settings-btn")!.addEventListener("click", () => {
   void openSettings();
 });
 
+document.getElementById("theme-toggle-btn")!.addEventListener("click", () => {
+  preferences.theme = preferences.theme === "dark" ? "light" : "dark";
+  applyTheme();
+  void savePreferences();
+});
+
 document.getElementById("close-settings-btn")!.addEventListener("click", () => {
   showView(lastNonSettingsView === "settings" ? "main" : lastNonSettingsView);
 });
@@ -513,6 +564,15 @@ document.getElementById("cancel-preview-btn")!.addEventListener("click", () => {
   showView("main");
 });
 
+document.getElementById("open-chat-btn")!.addEventListener("click", () => {
+  showView("chat");
+  (document.getElementById("chat-input") as HTMLInputElement).focus();
+});
+
+document.getElementById("return-form-btn")!.addEventListener("click", () => {
+  showView("preview");
+});
+
 document.getElementById("chat-send-btn")!.addEventListener("click", () => {
   const input = document.getElementById("chat-input") as HTMLInputElement;
   const message = input.value.trim();
@@ -539,6 +599,9 @@ document.getElementById("confirm-btn")!.addEventListener("click", async () => {
     const event = await createEvent(session.accessToken);
     (document.getElementById("calendar-link") as HTMLAnchorElement).href = event.htmlLink;
     showView("success");
+    successReturnTimer = window.setTimeout(() => {
+      showView("main");
+    }, 2400);
   } catch (error) {
     showError(error instanceof Error ? error.message : "Ocurrió un error inesperado.");
   }
@@ -563,6 +626,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 
 (async () => {
   await loadPreferences();
+  applyTheme();
   applyTranslations();
   await refreshInitialView();
 })();
