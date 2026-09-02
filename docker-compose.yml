@@ -1,6 +1,6 @@
 services:
   bff:
-    build: ./services/bff
+    build: ./services/bff-ms
     container_name: eventos-academicos-bff
     ports:
       - "3000:3000"
@@ -20,7 +20,7 @@ services:
     restart: unless-stopped
 
   calendar-service:
-    build: ./services/calendar
+    build: ./services/calendar-ms
     container_name: eventos-academicos-calendar-service
     ports:
       - "3001:3001"
@@ -35,7 +35,7 @@ services:
     restart: unless-stopped
 
   ai-service:
-    build: ./services/ai
+    build: ./services/ai-ms
     container_name: eventos-academicos-ai-service
     ports:
       - "8000:8000"

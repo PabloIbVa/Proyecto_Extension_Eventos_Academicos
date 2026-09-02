@@ -14,9 +14,9 @@ Proyecto_Extension_Eventos_Academicos/
 ├── .env                     <- aquí (lo creas tú, ver abajo)
 ├── extension/
 └── services/
-    ├── bff/                  <- ya trae su propio Dockerfile
-    ├── calendar-service/     <- ya trae su propio Dockerfile
-    └── ai/                   <- ya trae su propio Dockerfile
+    ├── bff-ms/               <- ya trae su propio Dockerfile
+    ├── calendar-ms/          <- ya trae su propio Dockerfile
+    └── ai-ms/                <- ya trae su propio Dockerfile
 ```
 
 Cada carpeta de servicio (`bff`, `calendar-service`, `ai`) ya incluye su
@@ -81,8 +81,8 @@ docker compose down
 
 ## Volver a levantar tras cambiar código
 
-Si modificas algo dentro de `services/bff`, `services/calendar-service` o
-`services/ai`, necesitas reconstruir la imagen de ese servicio:
+Si modificas algo dentro de `services/bff-ms`, `services/calendar-ms` o
+`services/ai-ms`, necesitas reconstruir la imagen de ese servicio:
 
 ```bash
 docker compose up --build
