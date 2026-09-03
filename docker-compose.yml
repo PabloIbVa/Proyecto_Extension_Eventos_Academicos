@@ -1,4 +1,15 @@
 services:
+  extension-builder:
+    build:
+      context: ./extension
+      dockerfile: Dockerfile
+    working_dir: /app
+    volumes:
+      - ./extension:/app
+      - /app/node_modules
+    command: sh -lc "npm install && npm run build"
+    restart: "no"
+
   bff:
     build: ./services/bff-ms
     container_name: eventos-academicos-bff

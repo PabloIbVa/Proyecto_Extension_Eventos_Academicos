@@ -25,37 +25,37 @@ scripts/copy-static.js  # Copia manifest/html/css/iconos a dist/
 - Node.js 18 o superior
 - npm
 
-## Instalación
+## Instalación y compilación con Docker
+
+La extensión ya puede compilarse automáticamente desde Docker. Cuando ejecutes:
 
 ```bash
-npm install
+docker compose up --build
 ```
 
-## Compilar
+el proyecto ejecuta `npm install` y `npm run build` para la carpeta `extension/` y genera la carpeta `dist/` lista para ser cargada en Chrome.
+
+Si solo quieres recompilar la extensión manualmente:
 
 ```bash
-npm run build
-```
-
-Esto genera la carpeta `dist/` con todo listo para cargar en el navegador.
-Para recompilar automáticamente mientras desarrollas:
-
-```bash
-npm run watch
+docker compose run --rm extension-builder
 ```
 
 ## Cargar la extensión en Chrome (o cualquier navegador basado en Chromium)
 
-1. Ejecuta `npm run build` para generar `dist/`.
-2. Abre `chrome://extensions` en el navegador.
-3. Activa el **"Modo de desarrollador"** (interruptor arriba a la derecha).
-4. Haz clic en **"Cargar descomprimida"** (Load unpacked).
-5. Selecciona la carpeta `dist/` (no la raíz del proyecto).
-6. La extensión debe aparecer en la lista y su icono en la barra de
-   herramientas del navegador.
+1. Abre `chrome://extensions` en el navegador.
+2. Activa el **"Modo de desarrollador"** (interruptor arriba a la derecha).
+3. Haz clic en **"Cargar descomprimida"** (Load unpacked).
+4. Selecciona la carpeta `dist/` dentro de `extension/`.
+5. La extensión debe aparecer en la lista y su icono en la barra de herramientas del navegador.
 
-Si haces cambios en el código, corre `npm run build` de nuevo y luego
-pulsa el botón de recarga (🔄) de la extensión en `chrome://extensions`.
+Si haces cambios en el código, vuelve a ejecutar:
+
+```bash
+docker compose run --rm extension-builder
+```
+
+y luego recarga la extensión en `chrome://extensions`.
 
 ## Verificación rápida
 

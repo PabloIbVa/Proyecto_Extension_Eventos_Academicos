@@ -1,96 +1,87 @@
 # Asistente de Eventos Académicos
 
-Este proyecto combina una extensión de Chrome con un conjunto de microservicios para automatizar la captura de información académica, analizarla con inteligencia artificial y crear eventos en Google Calendar.
+Este proyecto combina una extensión de Chrome con varios microservicios para detectar contenido académico, analizarlo con inteligencia artificial y convertirlo en eventos en Google Calendar.
 
-La idea principal es simple: mientras el usuario navega en páginas académicas o revisa información relacionada con tareas, entregas, fechas y actividades, la extensión detecta ese contenido, lo procesa con IA y ayuda a convertirlo en eventos o recordatorios útiles.
+La idea principal es automatizar la captura de información importante para el usuario, como tareas, fechas de entrega, recordatorios o eventos académicos, sin que tenga que copiar manualmente cada detalle.
 
 ## ¿Qué es este proyecto?
 
 Es una solución full-stack compuesta por:
 
-- Una extensión para navegador (`extension/`), que se ejecuta en Chrome.
-- Un backend BFF (`services/bff-ms/`), que expone la API principal y coordina la lógica de integración.
-- Un servicio de calendario (`services/calendar-ms/`), encargado de la autenticación con Google y la creación de eventos.
-- Un servicio de inteligencia artificial (`services/ai-ms/`), que analiza texto y extrae fechas, tareas o entregas relevantes.
+- una extensión de navegador para Chrome (`extension/`),
+- un backend principal (`services/bff-ms/`),
+- un servicio de Google Calendar (`services/calendar-ms/`),
+- un servicio de IA (`services/ai-ms/`).
 
-La extensión no se ejecuta dentro de Docker; Docker solo levanta los servicios backend. La extensión se carga desde Chrome como una extensión local en modo desarrollador.
+El objetivo es que el usuario navegue normalmente en páginas académicas, la extensión detecte contenido relevante, lo procese con IA, y luego el sistema pueda crear eventos o recordatorios automáticamente.
 
-## ¿Cómo está compuesto?
+## ¿Cómo está estructurado?
 
 ```text
 Proyecto_Extension_Eventos_Academicos/
-├── .env                     # Variables de entorno para Docker
-├── .env.example            # Ejemplo de configuración
-├── docker-compose.yml      # Orquestación de los microservicios
-├── README.md               # Documentación principal
-├── extension/              # Extensión de Chrome
+├── .env                     # variables de entorno para Docker
+├── .env.example            # ejemplo de configuración
+├── docker-compose.yml      # orquestación de todos los servicios
+├── README.md               # documentación del proyecto
+├── extension/              # extensión de chrome
+│   ├── Dockerfile          # crea la build de la extensión
+│   ├── dist/               # carpeta generada con la versión lista para cargar
 │   ├── manifest.json
-│   ├── popup/
-│   ├── background.js
-│   ├── content-script.js
-│   └── ...
+│   ├── package.json
+│   ├── esbuild.config.js
+│   ├── scripts/
+│   ├── src/
+│   └── icons/
 ├── services/
-│   ├── bff-ms/             # API gateway / backend principal
-│   ├── calendar-ms/        # Integración con Google Calendar
-│   └── ai-ms/              # Procesamiento con IA
+│   ├── bff-ms/             # backend principal / API
+│   ├── calendar-ms/        # integración con Google Calendar
+│   └── ai-ms/              # análisis con IA
 │       ├── app/
 │       ├── tests/
 │       └── Dockerfile
 └── ...
 ```
 
-### Descripción de cada servicio
+### Descripción del flujo
 
 #### 1) `extension/`
-Es la parte del usuario. Se instala como extensión en Chrome y cumple funciones como:
+Es la parte visible del sistema. Se instala como extensión en Chrome y realiza tareas como:
 
-- detectar contenido relevante en la página,
+- detectar contenido en la página,
+- leer el texto relevante,
 - enviar la información al backend,
-- mostrar la información al usuario,
-- iniciar el flujo de autenticación con Google Calendar.
+- abrir el flujo de autenticación con Google,
+- permitir al usuario visualizar y confirmar la información.
 
 #### 2) `services/bff-ms/`
-Es el backend principal o API gateway del proyecto. Se encarga de:
-
-- recibir solicitudes de la extensión,
-- coordinar llamadas a otros servicios,
-- orquestar la lógica de negocio,
-- manejar peticiones de evento y procesamiento.
+Es el backend principal. Actúa como puente entre la extensión y el resto de servicios. Coordina llamadas a la IA y al calendario.
 
 #### 3) `services/calendar-ms/`
-Es el servicio que se conecta con Google Calendar. Su rol principal es:
-
-- autenticar usuarios con Google,
-- obtener permisos para crear eventos,
-- registrar eventos con fecha, título y descripción.
+Se encarga de autenticar al usuario con Google y crear eventos dentro de Google Calendar.
 
 #### 4) `services/ai-ms/`
-Es el servicio de análisis inteligente. Aquí se procesa el texto detectado por la extensión y se intenta identificar:
-
-- fechas de entrega,
-- tareas o eventos,
-- información relevante para automatizar la captura de datos.
+Recibe texto y lo analiza para detectar fechas, entregas, tareas o elementos importantes que puedan convertirse en eventos o recordatorios.
 
 ## Requisitos previos
 
-Antes de iniciar el proyecto, asegúrate de tener instalado lo siguiente:
+Antes de iniciar el proyecto, asegúrate de tener:
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) o Docker Engine con Docker Compose.
-- [Google Chrome](https://www.google.com/chrome/) para cargar la extensión.
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) o Docker con Docker Compose funcionando.
+- [Google Chrome](https://www.google.com/chrome/).
 - Credenciales de Google Cloud para autenticación con Calendar.
-- Una clave API de Gemini o OpenRouter para el servicio de IA.
-- Una terminal con acceso a bash o PowerShell.
+- Una API key de Gemini o OpenRouter para el servicio de IA.
+- Node.js y npm (solo si quieres compilar la extensión manualmente fuera de Docker).
 
-## Configuración antes de iniciar
+## Preparación inicial
 
 ### 1) Crear el archivo `.env`
-En la raíz del proyecto copia el ejemplo:
+Copia el ejemplo desde la raíz del proyecto:
 
 ```bash
 cp .env.example .env
 ```
 
-Luego llena las variables con tus credenciales reales. Un ejemplo sería:
+Luego rellena tus valores reales:
 
 ```env
 GOOGLE_CLIENT_ID=tu_client_id
@@ -104,38 +95,33 @@ OPENROUTER_MODEL=meta-llama/llama-3.3-70b-instruct:free
 
 Importante:
 
-- `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET` son necesarios para OAuth con Google Calendar.
+- `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET` son necesarios para el login con Google Calendar.
 - `GEMINI_API_KEY` es necesaria si usas `AI_PROVIDER=gemini`.
-- `OPENROUTER_API_KEY` solo es necesaria si decides usar proveedor OpenRouter.
+- `OPENROUTER_API_KEY` solo es necesaria si vas a usar OpenRouter.
 
-### 2) Verifica que Docker esté corriendo
-Abre Docker Desktop o asegúrate de que el servicio de Docker esté activo antes de ejecutar los contenedores.
+### 2) Confirmar que Docker esté en ejecución
+Antes de correr los contenedores, verifica que Docker Desktop o el servicio de Docker esté activo.
 
-### 3) Carga la extensión en Chrome
-La extensión no se levanta con Docker. Debes cargarla manualmente:
+## Cómo iniciar el proyecto
 
-1. Abrir Chrome.
-2. Ir a `chrome://extensions`.
-3. Activar "Modo desarrollador".
-4. Seleccionar "Cargar descomprimida".
-5. Elegir la carpeta `extension/` del proyecto.
-
-## Paso a paso para iniciar el proyecto
-
-Desde la raíz del repositorio, ejecuta:
+Desde la raíz del proyecto ejecuta:
 
 ```bash
 docker compose up --build
 ```
 
-Este comando:
+Este comando hace varias cosas automáticamente:
 
-- crea las imágenes de cada servicio,
-- instanciará los contenedores de `bff-ms`, `calendar-ms` y `ai-ms`,
-- levanta la red interna para que los microservicios se puedan comunicar entre sí.
+- construye los contenedores de los servicios backend,
+- instala dependencias del frontend de la extensión,
+- ejecuta el build de la extensión,
+- genera la carpeta `extension/dist` en tu proyecto.
 
-### Espera a que los servicios estén listos
-Puedes comprobar el estado de cada uno con:
+La carpeta `dist` queda lista para cargarla en Chrome como una extensión sin necesidad de ejecutar `npm install` ni `npm run build` manualmente.
+
+## Verificar que los servicios están funcionando
+
+Abre otra terminal y ejecuta:
 
 ```bash
 curl http://localhost:3000/health
@@ -143,34 +129,35 @@ curl http://localhost:3001/health
 curl http://localhost:8000/health
 ```
 
-Si todo está correcto, cada endpoint debe responder con un JSON de estado positivo, por ejemplo `{"status":"ok"}`.
+Cada endpoint debe responder con un JSON correcto, como por ejemplo `{"status":"ok"}`.
 
-## ¿Cómo funcionan juntos?
+## Cargar la extensión en Chrome
 
-El flujo general es el siguiente:
+Una vez que Docker haya generado la carpeta `extension/dist`, haz esto:
 
-1. La extensión detecta contenido relevante en la página.
-2. Envía ese contenido al `bff-ms`.
-3. `bff-ms` coordina con `ai-ms` para analizar el texto.
-4. `ai-ms` intenta identificar fechas, entregas o eventos relevantes.
-5. `calendar-ms` se encarga de autenticar con Google y crear el evento final.
-6. El usuario puede revisar la información dentro de la extensión y continuar con el flujo.
+1. Abre `chrome://extensions`.
+2. Activa el modo desarrollador.
+3. Haz clic en `Cargar descomprimida`.
+4. Selecciona la carpeta `extension/dist`.
+5. La extensión quedará instalada y lista para usar.
 
-## Reiniciar y reconstruir
+## Cómo volver a compilar la extensión
 
-Si haces cambios en el código de los servicios, reconstruye las imágenes con:
+Si haces cambios en el código de la extensión, puedes reconstruirla con:
+
+```bash
+docker compose run --rm extension-builder
+```
+
+O también con:
 
 ```bash
 docker compose up --build
 ```
 
-Si quieres reconstruir desde cero y sin caché:
+Esto vuelve a ejecutar `npm install` y `npm run build`, y genera nuevamente la carpeta `dist`.
 
-```bash
-docker compose build --no-cache
-```
-
-## Detener los contenedores
+## Detener los servicios
 
 Para apagar todo el entorno:
 
@@ -178,45 +165,49 @@ Para apagar todo el entorno:
 docker compose down
 ```
 
-Si estás ejecutando la composición en la terminal actual, también puedes detenerla con `Ctrl + C`.
+Si lo ejecutas desde la terminal actual, también puedes usar `Ctrl + C`.
 
 ## Solución rápida a problemas comunes
 
-### 1) Puerto ya en uso
-Si ya tenías algo corriendo en los puertos 3000, 3001 o 8000, detén esos procesos antes de iniciar Docker.
+### 1) Error de puertos ya ocupados
+Si otros procesos ya están usando 3000, 3001 o 8000, deténlos antes de levantar Docker.
 
 ### 2) Error de variables de entorno
-Verifica que el archivo `.env` exista y que tenga valores válidos.
+Verifica que el archivo `.env` existe y que contiene valores válidos para Google y la IA.
 
-### 3) Error al construir imágenes
-Revisa los logs de Docker:
+### 3) La carpeta `dist` no aparece
+Ejecuta:
 
 ```bash
-docker compose logs -f
+docker compose run --rm extension-builder
 ```
 
-### 4) La extensión no carga
+y revisa si la build terminó correctamente.
+
+### 4) La extensión no carga en Chrome
 Asegúrate de:
 
-- haber habilitado "Modo desarrollador",
-- haber cargado la carpeta `extension/`,
-- que el backend esté levantado antes de probar la extensión.
+- haber cargado la carpeta `extension/dist`, no la carpeta raíz,
+- que los servicios backend estén levantados,
+- que la extensión haya sido compilada correctamente.
 
 ## Resumen rápido
 
-Si quieres arrancar el proyecto en 3 pasos:
+Para arrancar todo el proyecto en 3 pasos:
 
 ```bash
 cp .env.example .env
-# completar .env con tus claves
+# llena tus llaves y credenciales
 
 docker compose up --build
 ```
 
-Y luego carga la carpeta `extension/` en Chrome para usar la app.
+Y luego carga esta carpeta en Chrome:
+
+```text
+extension/dist
+```
 
 ## Nota importante
 
-Docker Compose solo levanta los servicios backend. La parte visual de la extensión se carga de forma independiente en el navegador, como cualquier otra extensión de Chrome.
-
-Esto permite separar la lógica de negocio y la integración con IA del manejo de la UI del usuario.
+Docker ya no solo levanta el backend; también se encarga de preparar la extensión para que el usuario final solo tenga que cargar la carpeta `dist` en Chrome. Esto simplifica mucho el flujo de instalación y evita que el usuario tenga que ejecutar `npm install` y `npm run build` manualmente.
