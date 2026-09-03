@@ -191,23 +191,6 @@ Asegúrate de:
 - que los servicios backend estén levantados,
 - que la extensión haya sido compilada correctamente.
 
-## Resumen rápido
-
-Para arrancar todo el proyecto en 3 pasos:
-
-```bash
-cp .env.example .env
-# llena tus llaves y credenciales
-
-docker compose up --build
-```
-
-Y luego carga esta carpeta en Chrome:
-
-```text
-extension/dist
-```
-
 ## Nota importante
 
 Docker ya no solo levanta el backend; también se encarga de preparar la extensión para que el usuario final solo tenga que cargar la carpeta `dist` en Chrome. Esto simplifica mucho el flujo de instalación y evita que el usuario tenga que ejecutar `npm install` y `npm run build` manualmente.
