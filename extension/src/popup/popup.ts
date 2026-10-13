@@ -64,6 +64,7 @@ let preferences: Preferences = {
 };
 let lastNonSettingsView: ViewName = "auth";
 let successReturnTimer: number | null = null;
+let activeAnalysisAbortController: AbortController | null = null;
 
 // ---------- i18n ----------
 
@@ -82,6 +83,7 @@ const TRANSLATIONS: Record<string, Record<Preferences["language"], string>> = {
   },
   mainSessionActive: { es: "Sesion activa con Google", en: "Signed in with Google" },
   analyzeBtn: { es: "Analizar pagina actual", en: "Analyze current page" },
+  cancelAnalysisBtn: { es: "Cancelar analisis", en: "Cancel analysis" },
   loadingTitle: { es: "Revisando la pagina", en: "Reviewing the page" },
   loadingText: {
     es: "Estamos detectando fecha, hora y detalles importantes.",
@@ -297,11 +299,23 @@ async function extractCurrentPageContent(): Promise<{
 
 // ---------- Paso 2: analizar con el AI Service (a través del BFF) ----------
 
-async function analyzeContent(text: string, url: string): Promise<AnalysisResult> {
+function cancelActiveAnalysis() {
+  if (!activeAnalysisAbortController) {
+    showView("main");
+    return;
+  }
+
+  activeAnalysisAbortController.abort();
+  activeAnalysisAbortController = null;
+  showView("main");
+}
+
+async function analyzeContent(text: string, url: string, signal?: AbortSignal): Promise<AnalysisResult> {
   const response = await fetch(`${BFF_BASE_URL}/analyze`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text, url }),
+    signal,
   });
 
   if (!response.ok) {
@@ -550,14 +564,29 @@ document.getElementById("logout-btn")!.addEventListener("click", () => {
 });
 
 document.getElementById("analyze-btn")!.addEventListener("click", async () => {
+  const controller = new AbortController();
+  activeAnalysisAbortController = controller;
   showView("loading");
+
   try {
     const { text, url } = await extractCurrentPageContent();
-    const result = await analyzeContent(text, url);
+    const result = await analyzeContent(text, url, controller.signal);
+    activeAnalysisAbortController = null;
     renderPreview(result);
   } catch (error) {
+    activeAnalysisAbortController = null;
+
+    if (error instanceof DOMException && error.name === "AbortError") {
+      showView("main");
+      return;
+    }
+
     showError(error instanceof Error ? error.message : "Ocurrió un error inesperado.");
   }
+});
+
+document.getElementById("cancel-analysis-btn")!.addEventListener("click", () => {
+  cancelActiveAnalysis();
 });
 
 document.getElementById("cancel-preview-btn")!.addEventListener("click", () => {

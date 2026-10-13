@@ -252,6 +252,14 @@ button:disabled {
   text-align: center;
 }
 
+.loading-actions {
+  width: 100%;
+}
+
+.loading-actions .secondary-btn {
+  width: 100%;
+}
+
 .loader-orbit {
   position: relative;
   width: 86px;
