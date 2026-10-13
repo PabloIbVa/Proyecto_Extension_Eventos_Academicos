@@ -1,6 +1,6 @@
 # Asistente de Eventos Académicos
 
-Este proyecto combina una extensión de Chrome con varios microservicios para detectar contenido académico, analizarlo con inteligencia artificial y convertirlo en eventos en Google Calendar.
+Este proyecto combina una extensión de Chrome con 2 microservicios para detectar contenido académico, analizarlo con inteligencia artificial y convertirlo en eventos en Google Calendar.
 
 La idea principal es automatizar la captura de información importante para el usuario, como tareas, fechas de entrega, recordatorios o eventos académicos, sin que tenga que copiar manualmente cada detalle.
 
@@ -190,7 +190,3 @@ Asegúrate de:
 - haber cargado la carpeta `extension/dist`, no la carpeta raíz,
 - que los servicios backend estén levantados,
 - que la extensión haya sido compilada correctamente.
-
-## Nota importante
-
-Docker ya no solo levanta el backend; también se encarga de preparar la extensión para que el usuario final solo tenga que cargar la carpeta `dist` en Chrome. Esto simplifica mucho el flujo de instalación y evita que el usuario tenga que ejecutar `npm install` y `npm run build` manualmente.
